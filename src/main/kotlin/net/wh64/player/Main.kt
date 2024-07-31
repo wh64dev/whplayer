@@ -16,6 +16,7 @@ import net.wh64.player.ui.MusicList
 import net.wh64.player.util.DefaultStates
 import net.wh64.player.util.MusicLoader
 import net.wh64.player.util.MusicPlayer
+import java.awt.Dimension
 
 @Composable
 @Preview
@@ -61,6 +62,7 @@ fun App(loader: MusicLoader) {
 fun main() = application {
 	val loader = MusicLoader()
 	Window(title = "WH Player", onCloseRequest = ::exitApplication) {
+		window.size = Dimension(800, 600)
 		App(loader)
 	}
 }

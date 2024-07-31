@@ -70,7 +70,7 @@ class MusicPlayer(
 				val commands = listOf(
 					"ffmpeg",
 					"-i", path,
-					"-f", "s16le",
+					"-f", "wav",
 					"-ar", "44100",
 					"-ac", "2",
 					"pipe:1"

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "net.projecttl"
-version = "1.0-SNAPSHOT"
+version = "0.1.0-beta.1"
 
 repositories {
 	mavenCentral()

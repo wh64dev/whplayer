@@ -1,68 +1,182 @@
 package net.wh64.player
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import net.wh64.player.ui.MusicController
-import net.wh64.player.ui.MusicList
-import net.wh64.player.util.DefaultStates
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import net.wh64.player.enum.Pages
+import net.wh64.player.service.StateService
+import net.wh64.player.ui.modal.Controller
+import net.wh64.player.ui.modal.Navigation
+import net.wh64.player.ui.pages.Favorite
+import net.wh64.player.ui.pages.Home
+import net.wh64.player.ui.pages.PlayList
+import net.wh64.player.ui.pages.Settings
+import net.wh64.player.ui.theme.contentTypography
+import net.wh64.player.ui.theme.typography
 import net.wh64.player.util.MusicLoader
 import net.wh64.player.util.MusicPlayer
+import org.jetbrains.exposed.sql.Database
 import java.awt.Dimension
+import java.io.File
 
+data class ServiceComponent(val stateService: StateService)
+data class MusicComponent(val loader: MusicLoader, val player: MusicPlayer, val service: ServiceComponent)
+data class DefaultStates(
+	val lock: MutableState<Boolean>,
+	val current: MutableState<String>,
+	val volume: MutableState<Float>,
+	val page: MutableState<Pages>,
+	val isPlaying: MutableState<Boolean>,
+	val progress: MutableState<Float>,
+	val viewNP: MutableState<Boolean>
+)
+
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 @Preview
-fun App(loader: MusicLoader) {
-	val current = remember { mutableStateOf(MusicPlayer("", "")) }
-	val volume = remember { mutableStateOf(0.5f) }
-	val play = remember { mutableStateOf(false) }
+fun App(comp: MusicComponent) {
+	val raw = comp.service.stateService.load()
 	val lock = remember { mutableStateOf(false) }
+	val current = remember { mutableStateOf("") }
+	val volume = remember { mutableStateOf(raw.volume) }
+	val pages = remember { mutableStateOf(Pages.HOME) }
+	val viewNP = remember { mutableStateOf(true) }
+	val progress = remember { mutableStateOf(0f) }
+	val isPlaying = remember { mutableStateOf(false) }
+	val states = DefaultStates(lock, current, volume, pages, isPlaying, progress, viewNP)
+	val search = remember { mutableStateOf("") }
 
-	val states = DefaultStates(
-		lock = lock,
-		play = play,
-		volume = volume,
-		current = current
-	)
+	comp.player.setStates(states)
+	comp.service.stateService.setStates(states)
 
-	Surface(modifier = Modifier.fillMaxSize()) {
+	Surface {
 		Scaffold(
 			topBar = {
-				TopAppBar(
-					title = { Text("WH Player") },
-					navigationIcon = {
-						IconButton(onClick = {}) {
-							Icon(imageVector = Icons.Filled.Menu, contentDescription = null)
-						}
+				Row(
+					verticalAlignment = Alignment.CenterVertically,
+					modifier = Modifier.fillMaxWidth().height(56.dp).background(Color(0xff212121))
+				) {
+					Spacer(Modifier.width(130.dp))
+
+					MaterialTheme(typography = contentTypography) {
+						OutlinedTextField(
+							value = search.value,
+							onValueChange = { search.value = it },
+							colors = TextFieldDefaults.textFieldColors(textColor = Color.Black, backgroundColor = Color.White),
+							shape = RoundedCornerShape(50.dp),
+							placeholder = { Text("Search feature not available") },
+							modifier = Modifier.size(width = 216.dp, height = 28.dp)
+								.padding(horizontal = 10.dp, vertical = 0.dp)
+						)
 					}
-				)
-			},
-			bottomBar = {
-				MusicController(states, modifier = Modifier.fillMaxWidth())
-			},
-			modifier = Modifier.fillMaxSize()
+				}
+			}
 		) { paddingValues ->
-			MusicList(
-				loader = loader,
-				states = states,
-				modifier = Modifier.fillMaxSize().padding(paddingValues = paddingValues)
-			)
+			Row(
+				horizontalArrangement = Arrangement.SpaceBetween,
+				modifier = Modifier.fillMaxSize().padding(paddingValues)
+			) {
+				Navigation(states)
+				when (states.page.value) {
+					Pages.HOME -> Home(comp, states, modifier = Modifier.weight(1f).fillMaxHeight())
+					Pages.PLAY_LIST -> PlayList()
+					Pages.FAVORITE -> Favorite()
+					Pages.SETTINGS -> Settings()
+				}
+
+				if (viewNP.value) {
+					Controller(comp, states)
+				} else {
+					// IGNORE
+				}
+			}
+		}
+	}
+
+	GlobalScope.launch {
+		while (true) {
+			delay(3000)
+			comp.service.stateService.save()
+			System.gc()
+
+			println("refresher task completed")
 		}
 	}
 }
 
+//@OptIn(DelicateCoroutinesApi::class)
+//@Composable
+//fun MusicList(comp: MusicComponent, states: DefaultStates, modifier: Modifier = Modifier) {
+//	LazyColumn(modifier = modifier) {
+//		items(comp.loader.getList()) { music ->
+//			Row(
+//				verticalAlignment = Alignment.CenterVertically,
+//				modifier = Modifier.fillMaxWidth().height(45.dp).clickable(enabled = states.current.value != music.name) {
+//					GlobalScope.launch {
+//						if (states.lock.value) {
+//							return@launch
+//						}
+//
+//						if (states.current.value == music.name) {
+//							return@launch
+//						}
+//
+//						if (states.current.value != "") {
+//							comp.player.stop()
+//						}
+//
+//						states.lock.value = true
+//						comp.player.build(music.absolutePath, name = music.name)
+//						comp.player.play()
+//					}
+//				}
+//			) {
+//				Spacer(Modifier.width(20.dp))
+//				Text(music.name)
+//			}
+//		}
+//	}
+//}
+
 fun main() = application {
 	val loader = MusicLoader()
-	Window(title = "WH Player", onCloseRequest = ::exitApplication) {
+	val player = MusicPlayer()
+	val data = File("data.db")
+	if (!data.exists()) {
+		data.createNewFile()
+	}
+
+	val database = Database.connect(
+		url = "jdbc:sqlite:${data.absolutePath}",
+		driver = "org.sqlite.JDBC"
+	)
+
+	val stateService = StateService()
+	val services = ServiceComponent(stateService)
+	val comp = MusicComponent(loader, player, services)
+
+	Window(
+		title = "WH Player",
+		onCloseRequest = ::exitApplication
+	) {
 		window.size = Dimension(800, 600)
-		App(loader)
+		window.minimumSize = Dimension(800, 600)
+
+		MaterialTheme(typography = typography) {
+			App(comp)
+		}
 	}
 }

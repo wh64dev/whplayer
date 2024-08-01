@@ -7,6 +7,9 @@ build/
 .kotlin/
 .run/
 
+data.db
+tmp/
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws

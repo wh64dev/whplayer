@@ -4,6 +4,9 @@ interface MusicPlay {
 	suspend fun play()
 	suspend fun pause()
 	suspend fun stop()
-	fun setCursor(cursor: Long)
+	suspend fun prev()
+	suspend fun next()
+	fun setCursor(cursor: Float)
 	fun setVolume(volume: Float)
+	suspend fun build(path: String, name: String)
 }

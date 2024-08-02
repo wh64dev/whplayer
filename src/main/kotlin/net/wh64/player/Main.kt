@@ -40,7 +40,7 @@ data class DefaultStates(
 	val volume: MutableState<Float>,
 	val page: MutableState<Pages>,
 	val isPlaying: MutableState<Boolean>,
-	val progress: MutableState<Float>,
+	val progress: MutableFloatState,
 	val viewNP: MutableState<Boolean>
 )
 
@@ -54,7 +54,7 @@ fun App(comp: MusicComponent) {
 	val volume = remember { mutableStateOf(raw.volume) }
 	val pages = remember { mutableStateOf(Pages.HOME) }
 	val viewNP = remember { mutableStateOf(true) }
-	val progress = remember { mutableStateOf(0f) }
+	val progress = remember { mutableFloatStateOf(0f) }
 	val isPlaying = remember { mutableStateOf(false) }
 	val states = DefaultStates(lock, current, volume, pages, isPlaying, progress, viewNP)
 	val search = remember { mutableStateOf("") }
@@ -110,46 +110,13 @@ fun App(comp: MusicComponent) {
 		while (true) {
 			delay(3000)
 			comp.service.stateService.save()
+			comp.loader.reload()
 			System.gc()
 
 			println("refresher task completed")
 		}
 	}
 }
-
-//@OptIn(DelicateCoroutinesApi::class)
-//@Composable
-//fun MusicList(comp: MusicComponent, states: DefaultStates, modifier: Modifier = Modifier) {
-//	LazyColumn(modifier = modifier) {
-//		items(comp.loader.getList()) { music ->
-//			Row(
-//				verticalAlignment = Alignment.CenterVertically,
-//				modifier = Modifier.fillMaxWidth().height(45.dp).clickable(enabled = states.current.value != music.name) {
-//					GlobalScope.launch {
-//						if (states.lock.value) {
-//							return@launch
-//						}
-//
-//						if (states.current.value == music.name) {
-//							return@launch
-//						}
-//
-//						if (states.current.value != "") {
-//							comp.player.stop()
-//						}
-//
-//						states.lock.value = true
-//						comp.player.build(music.absolutePath, name = music.name)
-//						comp.player.play()
-//					}
-//				}
-//			) {
-//				Spacer(Modifier.width(20.dp))
-//				Text(music.name)
-//			}
-//		}
-//	}
-//}
 
 fun main() = application {
 	val loader = MusicLoader()

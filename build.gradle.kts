@@ -42,8 +42,7 @@ compose.desktop {
 				TargetFormat.Dmg,
 				TargetFormat.Msi,
 				TargetFormat.Deb,
-				TargetFormat.Rpm,
-				TargetFormat.AppImage
+				TargetFormat.Rpm
 			)
 			packageName = "whplayer"
 			packageVersion = "1.0.0"

@@ -16,14 +16,17 @@ data class RawState(
 
 class StateService {
 	private var states: DefaultStates? = null
-	private val stateFile = File("tmp/", "state.json")
+	private val file = File("tmp/", "state.json")
 
 	init {
-		if (!stateFile.exists()) {
-			stateFile.parentFile.mkdir()
-			stateFile.createNewFile()
+		if (!file.exists()) {
+			if (!file.parentFile.exists()) {
+				file.parentFile.mkdir()
+			}
 
-			Files.write(stateFile.toPath(), "{\"current\":\"\",\"volume\":0.5,\"view_np\": false}".toByteArray(Charsets.UTF_8))
+			file.createNewFile()
+			Files.write(file.toPath(), "{\"current\":\"\",\"volume\":0.5,\"view_np\": false}"
+				.toByteArray(Charsets.UTF_8))
 		}
 	}
 
@@ -32,13 +35,13 @@ class StateService {
 	}
 
 	fun load(): RawState {
-		return Json.decodeFromString<RawState>(stateFile.readText())
+		return Json.decodeFromString<RawState>(file.readText())
 	}
 
 	fun save() {
 		val data = RawState(states!!.current.value, states!!.volume.value, states!!.viewNP.value)
 		val raw = Json.encodeToString(data)
 
-		Files.write(stateFile.toPath(), raw.toByteArray(Charsets.UTF_8))
+		Files.write(file.toPath(), raw.toByteArray(Charsets.UTF_8))
 	}
 }

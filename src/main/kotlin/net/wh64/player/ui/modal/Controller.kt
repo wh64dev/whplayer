@@ -1,7 +1,6 @@
 package net.wh64.player.ui.modal
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,9 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -82,7 +79,7 @@ fun Controller(comp: MusicComponent, states: DefaultStates) {
 				Slider(
 					enabled = states.current.value != "",
 					value = states.progress.value,
-					onValueChange = { comp.player.setCursor(it) },
+					onValueChange = { GlobalScope.launch { comp.player.setCursor(it) } },
 					interactionSource = MutableInteractionSource(),
 					valueRange = 0f..comp.player.getLength().toFloat(),
 					modifier = Modifier.width(130.dp)

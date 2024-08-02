@@ -27,7 +27,7 @@ fun Home(comp: MusicComponent, states: DefaultStates, modifier: Modifier = Modif
 			comp.loader.getList().forEach {
 				Row(
 					verticalAlignment = Alignment.CenterVertically,
-					modifier = Modifier.fillMaxWidth().padding(8.dp)
+					modifier = Modifier.fillMaxWidth().height(40.dp)
 						.clickable(
 						enabled = states.current.value != it.name && !states.lock.value,
 					) {

@@ -17,6 +17,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.wh64.player.enum.Pages
+import net.wh64.player.enum.PlayMode
 import net.wh64.player.service.StateService
 import net.wh64.player.ui.modal.Controller
 import net.wh64.player.ui.modal.Navigation
@@ -41,7 +42,9 @@ data class DefaultStates(
 	val page: MutableState<Pages>,
 	val isPlaying: MutableState<Boolean>,
 	val progress: MutableFloatState,
-	val viewNP: MutableState<Boolean>
+	val viewNP: MutableState<Boolean>,
+	val queue: MutableState<MutableList<String>>,
+	val mode: MutableState<PlayMode>
 )
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -56,7 +59,9 @@ fun App(comp: MusicComponent) {
 	val viewNP = remember { mutableStateOf(true) }
 	val progress = remember { mutableFloatStateOf(0f) }
 	val isPlaying = remember { mutableStateOf(false) }
-	val states = DefaultStates(lock, current, volume, pages, isPlaying, progress, viewNP)
+	val queue = remember { mutableStateOf(mutableListOf<String>()) }
+	val mode = remember { mutableStateOf(raw.mode) }
+	val states = DefaultStates(lock, current, volume, pages, isPlaying, progress, viewNP, queue)
 	val search = remember { mutableStateOf("") }
 
 	comp.player.setStates(states)

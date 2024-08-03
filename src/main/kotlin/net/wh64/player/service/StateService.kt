@@ -11,7 +11,8 @@ import java.nio.file.Files
 data class RawState(
 	val current: String,
 	val volume: Float,
-	val view_np: Boolean
+	val view_np: Boolean,
+	val mode: String
 )
 
 class StateService {
@@ -25,7 +26,7 @@ class StateService {
 			}
 
 			file.createNewFile()
-			Files.write(file.toPath(), "{\"current\":\"\",\"volume\":0.5,\"view_np\": false}"
+			Files.write(file.toPath(), "{\"current\":\"\",\"volume\":0.5,\"view_np\": false, \"mode\": \"SINGLE\"}"
 				.toByteArray(Charsets.UTF_8))
 		}
 	}
@@ -39,7 +40,7 @@ class StateService {
 	}
 
 	fun save() {
-		val data = RawState(states!!.current.value, states!!.volume.value, states!!.viewNP.value)
+		val data = RawState(states!!.current.value, states!!.volume.value, states!!.viewNP.value, states!!.mode.value.name)
 		val raw = Json.encodeToString(data)
 
 		Files.write(file.toPath(), raw.toByteArray(Charsets.UTF_8))

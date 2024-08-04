@@ -43,6 +43,9 @@ compose.desktop {
 
 		nativeDistributions {
 			val os = System.getProperty("os.name").lowercase()
+			windows {
+				includeAllModules = true
+			}
 
 			targetFormats(
 				when {

@@ -18,7 +18,14 @@ object Config {
 
 @Suppress("UNCHECKED_CAST")
 class ConfigDelegate<T>: DelegateGenerator<T> {
-    private val file = File("${getDataDir()}/tmp/", "config.properties")
+    private val file = File(
+        if (System.getProperty("os.name").lowercase().contains("win")) {
+            "${getDataDir()}\\tmp\\"
+        } else {
+            "${getDataDir()}/tmp/"
+        },
+        "config.properties"
+    )
     private val prop = Properties()
     init {
         if (!file.exists()) {

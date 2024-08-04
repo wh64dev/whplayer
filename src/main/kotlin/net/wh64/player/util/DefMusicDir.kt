@@ -13,7 +13,7 @@ fun getDirectory(): String {
 fun getDataDir(): String {
     val home = System.getProperty("user.home")
     return when(getOS()) {
-        OSType.WINDOWS -> ""
+        OSType.WINDOWS -> "${home.replace("\\", "\\\\")}\\\\.whplayer"
         OSType.LINUX, OSType.DARWIN -> "$home/.config/whplayer"
     }
 }

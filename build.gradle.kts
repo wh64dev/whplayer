@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "net.projecttl"
-version = "1.0.0+proto.1"
+version = "1.0.0+alpha.1"
 
 val exposed_version: String by project
 
@@ -43,15 +43,23 @@ compose.desktop {
 
 		nativeDistributions {
 			targetFormats(
-//				TargetFormat.Dmg,
-//				TargetFormat.Msi,
+				TargetFormat.Msi,
+				TargetFormat.Dmg,
 				TargetFormat.Deb,
 				TargetFormat.Rpm
 			)
 
+			val os = System.getProperty("os.name").lowercase()
+
 			modules("java.sql")
 			packageName = "whplayer"
-			packageVersion = version.toString()
+			packageVersion = if (os.contains("mac")) {
+				version.toString().substringBefore("+")
+			} else if (os.contains("win")) {
+				version.toString().substringBefore("-") + "A"
+			} else {
+				version.toString()
+			}
 		}
 	}
 }

@@ -14,7 +14,6 @@ fun getDataDir(): String {
     val home = System.getProperty("user.home")
     return when(getOS()) {
         OSType.WINDOWS -> ""
-        OSType.LINUX -> "$home/.config/whplayer"
-        OSType.DARWIN -> "$home/.config/whplayer"
+        OSType.LINUX, OSType.DARWIN -> "$home/.config/whplayer"
     }
 }

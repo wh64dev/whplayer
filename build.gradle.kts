@@ -42,23 +42,30 @@ compose.desktop {
 		mainClass = "net.wh64.player.MainKt"
 
 		nativeDistributions {
+			val os = System.getProperty("os.name").lowercase()
+
 			targetFormats(
-				TargetFormat.Msi,
-				TargetFormat.Dmg,
+				when {
+					os.contains("win") -> TargetFormat.Msi
+					os.contains("mac") -> TargetFormat.Dmg
+					else -> TargetFormat.AppImage
+				},
 				TargetFormat.Deb,
 				TargetFormat.Rpm
 			)
 
-			val os = System.getProperty("os.name").lowercase()
-
 			modules("java.sql")
 			packageName = "whplayer"
-			packageVersion = if (os.contains("mac")) {
-				version.toString().substringBefore("+")
-			} else if (os.contains("win")) {
-				version.toString().substringBefore("-") + "A"
-			} else {
-				version.toString()
+			packageVersion = when {
+				os.contains("mac") -> {
+					version.toString().substringBefore("+")
+				}
+				os.contains("win") -> {
+					version.toString().substringBefore("-") + "A"
+				}
+				else -> {
+					version.toString()
+				}
 			}
 		}
 	}

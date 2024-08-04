@@ -58,11 +58,8 @@ compose.desktop {
 			packageName = "whplayer"
 			println("version: " + version.toString().substringBefore("+"))
 			packageVersion = when {
-				os.contains("mac") -> {
+				os.contains("mac") || os.contains("win") -> {
 					version.toString().substringBefore("+")
-				}
-				os.contains("win") -> {
-					version.toString().substringBefore("+") + "A"
 				}
 				else -> {
 					version.toString()

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "net.projecttl"
-version = "0.1.0-beta.1"
+version = "0.1.0-proto.1"
 
 val exposed_version: String by project
 

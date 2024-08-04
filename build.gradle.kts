@@ -56,12 +56,13 @@ compose.desktop {
 
 			modules("java.sql")
 			packageName = "whplayer"
+			println("version: " + version.toString().substringBefore("+"))
 			packageVersion = when {
 				os.contains("mac") -> {
 					version.toString().substringBefore("+")
 				}
 				os.contains("win") -> {
-					version.toString().substringBefore("-") + "A"
+					version.toString().substringBefore("+") + "A"
 				}
 				else -> {
 					version.toString()

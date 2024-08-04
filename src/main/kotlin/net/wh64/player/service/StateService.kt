@@ -9,9 +9,7 @@ import java.nio.file.Files
 
 @Serializable
 data class RawState(
-	val current: String,
 	val volume: Float,
-	val view_np: Boolean,
 	val mode: String
 )
 
@@ -26,8 +24,10 @@ class StateService {
 			}
 
 			file.createNewFile()
-			Files.write(file.toPath(), "{\"current\":\"\",\"volume\":0.5,\"view_np\": false, \"mode\": \"SINGLE\"}"
+			Files.write(file.toPath(), "{\"volume\":0.5,\"mode\": \"SINGLE\"}"
 				.toByteArray(Charsets.UTF_8))
+
+			Thread.sleep(1000)
 		}
 	}
 
@@ -40,7 +40,7 @@ class StateService {
 	}
 
 	fun save() {
-		val data = RawState(states!!.current.value, states!!.volume.value, states!!.viewNP.value, states!!.mode.value.name)
+		val data = RawState(states!!.volume.value, states!!.playMode.value.name)
 		val raw = Json.encodeToString(data)
 
 		Files.write(file.toPath(), raw.toByteArray(Charsets.UTF_8))

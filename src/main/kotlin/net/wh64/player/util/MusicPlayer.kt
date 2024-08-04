@@ -1,9 +1,8 @@
 package net.wh64.player.util
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import net.wh64.player.DefaultStates
+import net.wh64.player.enum.PlayMode
 import java.io.ByteArrayOutputStream
 import javax.sound.sampled.*
 import kotlin.math.log10
@@ -12,8 +11,10 @@ class MusicPlayer : MusicPlay {
 	var clip: Clip? = null
 	private var volumeController: FloatControl? = null
 	private var states: DefaultStates? = null
+	private lateinit var mode: PlayMode
 
 	override suspend fun play() {
+		states!!.isPlaying.value = true
 		clip?.start()
 		unlock()
 
@@ -31,27 +32,37 @@ class MusicPlayer : MusicPlay {
 	}
 
 	override suspend fun stop() {
+		states!!.isPlaying.value = false
+
 		clip?.stop()
 		clip?.microsecondPosition = 0
+		states!!.progress.value = 0f
 		states!!.current.value = ""
 
 		unlock()
 	}
 
 	override suspend fun pause() {
+		states!!.isPlaying.value = false
 		clip?.stop()
 		unlock()
 	}
 
 	override suspend fun next() {
-		if (clip?.microsecondPosition!! >= clip?.microsecondLength!!) {
-			// TODO: create queue function and next
-		}
+		clip?.microsecondPosition = clip?.microsecondLength!!
 
+		unlock()
 	}
 
 	override suspend fun prev() {
 		// TODO: create queue function and prev
+		if (getCurrent() > 1500L) {
+			clip?.microsecondPosition = 0
+			unlock()
+
+			return
+		}
+
 		stop()
 	}
 
@@ -64,12 +75,24 @@ class MusicPlayer : MusicPlay {
 		volumeController?.value = dB
 	}
 
+	fun init() {
+		mode = states?.playMode!!.value
+	}
+
+	fun lock() {
+		if (states!!.lock.value) {
+			return
+		}
+
+		states!!.lock.value = true
+	}
+
 	private suspend fun unlock() {
 		if (!states!!.lock.value) {
 			return
 		}
 
-		delay(120)
+		delay(220)
 		states!!.lock.value = false
 	}
 

@@ -21,6 +21,6 @@ class MusicLoader {
 	}
 
 	fun getList(): List<File> {
-		return list.toList()
+		return list.toList().sortedBy { it.name }
 	}
 }

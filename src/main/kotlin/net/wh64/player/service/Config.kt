@@ -37,4 +37,15 @@ class ConfigDelegate<T>: DelegateGenerator<T> {
     override operator fun getValue(ref: Any, property: KProperty<*>): T {
         return prop[property.name] as T
     }
+
+    companion object {
+        fun init() {
+            // TODO: Production code will not used this code
+            val delegate = ConfigDelegate<String>()
+            if (!delegate.file.exists()) {
+                Thread.sleep(1000)
+            }
+            return
+        }
+    }
 }

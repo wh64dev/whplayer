@@ -5,10 +5,11 @@ plugins {
 	kotlin("jvm") version "2.0.0"
 	id("org.jetbrains.kotlin.plugin.compose")
 	kotlin("plugin.serialization") version "2.0.0"
+	id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "net.projecttl"
-version = "0.1.0-proto.1"
+version = "1.0.0+proto.1"
 
 val exposed_version: String by project
 
@@ -42,13 +43,15 @@ compose.desktop {
 
 		nativeDistributions {
 			targetFormats(
-				TargetFormat.Dmg,
-				TargetFormat.Msi,
+//				TargetFormat.Dmg,
+//				TargetFormat.Msi,
 				TargetFormat.Deb,
 				TargetFormat.Rpm
 			)
+
+			modules("java.sql")
 			packageName = "whplayer"
-			packageVersion = "1.0.0"
+			packageVersion = version.toString()
 		}
 	}
 }

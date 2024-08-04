@@ -26,6 +26,7 @@ import net.wh64.player.service.StateService
 import net.wh64.player.ui.theme.DefaultTheme
 import net.wh64.player.util.MusicLoader
 import net.wh64.player.util.MusicPlayer
+import net.wh64.player.util.getDataDir
 import org.jetbrains.exposed.sql.Database
 import java.awt.Dimension
 import java.io.File
@@ -234,8 +235,12 @@ fun main() = application {
 	ConfigDelegate.init()
 	val loader = MusicLoader()
 	val player = MusicPlayer()
-	val data = File("data.db")
+	val data = File(getDataDir(), "data.db")
 	if (!data.exists()) {
+		if (!data.parentFile.exists()) {
+			data.parentFile.mkdirs()
+		}
+
 		data.createNewFile()
 	}
 

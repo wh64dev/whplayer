@@ -1,5 +1,6 @@
 package net.wh64.player.service
 
+import net.wh64.player.util.getDataDir
 import net.wh64.player.util.getDirectory
 import java.io.File
 import java.io.FileInputStream
@@ -17,7 +18,7 @@ object Config {
 
 @Suppress("UNCHECKED_CAST")
 class ConfigDelegate<T>: DelegateGenerator<T> {
-    private val file = File("tmp/", "config.properties")
+    private val file = File("${getDataDir()}/tmp/", "config.properties")
     private val prop = Properties()
     init {
         if (!file.exists()) {

@@ -1,13 +1,13 @@
 package net.wh64.player.util
 
-import net.wh64.player.enum.OperatingSystem
+import net.wh64.player.enum.OSType
 
-fun getOS(): OperatingSystem {
+fun getOS(): OSType {
     val os = System.getProperty("os.name").lowercase()
     return when {
-        os.contains("win") -> OperatingSystem.WINDOWS
-        os.contains("mac") -> OperatingSystem.DARWIN
-        os.contains("linux") -> OperatingSystem.LINUX
+        os.contains("win") -> OSType.WINDOWS
+        os.contains("mac") -> OSType.DARWIN
+        os.contains("linux") -> OSType.LINUX
         else -> throw IllegalStateException("Unknown operating system $os")
     }
 }

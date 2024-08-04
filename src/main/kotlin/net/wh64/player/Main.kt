@@ -25,8 +25,8 @@ import net.wh64.player.ui.pages.Favorite
 import net.wh64.player.ui.pages.Home
 import net.wh64.player.ui.pages.PlayList
 import net.wh64.player.ui.pages.Settings
+import net.wh64.player.ui.theme.DefaultTheme
 import net.wh64.player.ui.theme.contentTypography
-import net.wh64.player.ui.theme.typography
 import net.wh64.player.util.MusicLoader
 import net.wh64.player.util.MusicPlayer
 import org.jetbrains.exposed.sql.Database
@@ -44,7 +44,7 @@ data class DefaultStates(
 	val progress: MutableFloatState,
 	val viewNP: MutableState<Boolean>,
 	val queue: MutableState<MutableList<String>>,
-	val mode: MutableState<PlayMode>
+	val playMode: MutableState<PlayMode>
 )
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -55,13 +55,23 @@ fun App(comp: MusicComponent) {
 	val lock = remember { mutableStateOf(false) }
 	val current = remember { mutableStateOf("") }
 	val volume = remember { mutableStateOf(raw.volume) }
-	val pages = remember { mutableStateOf(Pages.HOME) }
+	val page = remember { mutableStateOf(Pages.HOME) }
 	val viewNP = remember { mutableStateOf(true) }
-	val progress = remember { mutableFloatStateOf(0f) }
 	val isPlaying = remember { mutableStateOf(false) }
+	val progress = remember { mutableFloatStateOf(0f) }
 	val queue = remember { mutableStateOf(mutableListOf<String>()) }
-	val mode = remember { mutableStateOf(raw.mode) }
-	val states = DefaultStates(lock, current, volume, pages, isPlaying, progress, viewNP, queue)
+	val playMode = remember { mutableStateOf(PlayMode.SINGLE) }
+	val states = DefaultStates(
+		lock = lock,
+		current = current,
+		volume = volume,
+		page = page,
+		isPlaying = isPlaying,
+		progress = progress,
+		viewNP = viewNP,
+		queue = queue,
+		playMode = playMode
+	)
 	val search = remember { mutableStateOf("") }
 
 	comp.player.setStates(states)
@@ -137,6 +147,7 @@ fun main() = application {
 	)
 
 	val stateService = StateService()
+	val dim = Dimension(800, 600)
 	val services = ServiceComponent(stateService)
 	val comp = MusicComponent(loader, player, services)
 
@@ -144,10 +155,10 @@ fun main() = application {
 		title = "WH Player",
 		onCloseRequest = ::exitApplication
 	) {
-		window.size = Dimension(800, 600)
-		window.minimumSize = Dimension(800, 600)
+		window.size = dim
+		window.minimumSize = dim
 
-		MaterialTheme(typography = typography) {
+		DefaultTheme {
 			App(comp)
 		}
 	}

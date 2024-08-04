@@ -1,6 +1,8 @@
 package net.wh64.player.ui.theme
 
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,3 +38,9 @@ val typography = Typography(
 )
 
 val contentTypography = Typography(defaultFontFamily = PretendardFamily)
+
+@Composable
+fun DefaultTheme(content: @Composable () -> Unit) = MaterialTheme(
+	typography = typography,
+	content = content
+)

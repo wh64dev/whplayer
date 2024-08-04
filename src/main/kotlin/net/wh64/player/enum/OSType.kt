@@ -1,6 +1,6 @@
 package net.wh64.player.enum
 
-enum class OperatingSystem {
+enum class OSType {
     WINDOWS,
     DARWIN,
     LINUX;

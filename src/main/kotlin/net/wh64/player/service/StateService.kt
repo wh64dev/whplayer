@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.wh64.player.DefaultStates
+import net.wh64.player.util.getDataDir
 import java.io.File
 import java.nio.file.Files
 
@@ -15,7 +16,7 @@ data class RawState(
 
 class StateService {
 	private var states: DefaultStates? = null
-	private val file = File("tmp/", "state.json")
+	private val file = File("${getDataDir()}/tmp/", "state.json")
 
 	init {
 		if (!file.exists()) {

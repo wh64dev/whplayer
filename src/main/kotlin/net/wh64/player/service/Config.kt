@@ -50,6 +50,7 @@ class ConfigDelegate<T>: DelegateGenerator<T> {
         fun init() {
             // TODO: Production code will not used this code
             val delegate = ConfigDelegate<String>()
+            println(delegate.file)
             if (!delegate.file.exists()) {
                 Thread.sleep(1000)
             }

@@ -27,6 +27,7 @@ import net.wh64.player.ui.theme.DefaultTheme
 import net.wh64.player.util.MusicLoader
 import net.wh64.player.util.MusicPlayer
 import net.wh64.player.util.getDataDir
+import net.wh64.player.util.getDirectory
 import org.jetbrains.exposed.sql.Database
 import java.awt.Dimension
 import java.io.File
@@ -48,6 +49,7 @@ data class DefaultStates(
 @Preview
 fun App(comp: MusicComponent, states: DefaultStates) {
 	val expandMenu = remember { mutableStateOf(false) }
+	val musics = remember { mutableStateOf(comp.loader.getList()) }
 	comp.player.init()
 
 	Surface {
@@ -165,7 +167,7 @@ fun App(comp: MusicComponent, states: DefaultStates) {
 			}
 		) { contentPadding ->
 			LazyColumn(Modifier.padding(contentPadding)) {
-				items(comp.loader.getList()) {
+				items(musics.value) {
 					Row(
 						verticalAlignment = Alignment.CenterVertically,
 						modifier = Modifier.fillMaxWidth().height(50.dp).clickable(states.current.value != it.name && !states.lock.value) {
@@ -194,9 +196,13 @@ fun App(comp: MusicComponent, states: DefaultStates) {
 
 	GlobalScope.launch {
 		while (true) {
-			delay(3000)
+			delay(1000)
 			comp.service.stateService.save()
 			comp.loader.reload()
+			musics.value = comp.loader.getList()
+
+			check(comp)
+			checkCache(comp)
 			System.gc()
 		}
 	}
@@ -228,6 +234,26 @@ fun TimeDuration(duration: Long = 0L, states: DefaultStates) {
 	}
 
 	Text("${minute}:${time(second)}", color = color, fontSize = size, modifier = modifier)
+}
+
+private fun check(comp: MusicComponent) {
+	comp.loader.getList().forEach {
+		val target = "${getDataDir()}/converted/${it.name}.wav"
+		if (!File(target).exists()) {
+			comp.player.convert(it.absolutePath, target)
+		}
+	}
+}
+
+private fun checkCache(comp: MusicComponent) {
+	val converted = File("${getDataDir()}/converted")
+	converted.listFiles()?.forEach {
+		val default = File("${getDirectory()}/${it.name.dropLast(4)}")
+		if (!comp.loader.getListString().contains(default.name)) {
+			println("remove cache: ${it.name.dropLast(4)}")
+			it.delete()
+		}
+	}
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -275,6 +301,13 @@ fun main() = application {
 
 	comp.player.setStates(states)
 	comp.service.stateService.setStates(states)
+
+	val converted = File(getDataDir(), "converted")
+	if (!converted.exists()) {
+		converted.mkdir()
+	}
+
+	check(comp)
 
 	Window(
 		title = "WH Player",

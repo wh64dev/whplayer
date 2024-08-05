@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import net.wh64.player.DefaultStates
 import net.wh64.player.enum.PlayMode
 import java.io.ByteArrayOutputStream
+import java.io.File
 import javax.sound.sampled.*
 import kotlin.math.log10
 
@@ -117,26 +118,18 @@ class MusicPlayer : MusicPlay {
 	}
 
 	override suspend fun build(path: String, name: String) {
-		var process: Process? = null
 		try {
-			val commands = listOf(
-				"ffmpeg",
-				"-i", path,
-				"-f", "wav",
-				"-ar", "44100",
-				"-ac", "2",
-				"pipe:1"
-			)
+			val target = "${getDataDir()}/converted/${name}.wav"
+			val byteArrayOutputStream = ByteArrayOutputStream()
 
-			val processBuilder = ProcessBuilder(commands)
-			processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT)
-			process = withContext(Dispatchers.IO) {
-				processBuilder.start()
+			val file = File(target)
+			if (!file.exists()) {
+				convert(path, target, byteArrayOutputStream)
+				delay(1000)
 			}
 
-			val byteArrayOutputStream = ByteArrayOutputStream()
-			process?.inputStream.use { stream ->
-				stream?.copyTo(byteArrayOutputStream)
+			file.inputStream().use {
+				it.copyTo(byteArrayOutputStream)
 			}
 
 			val audioBytes = byteArrayOutputStream.toByteArray()
@@ -156,11 +149,37 @@ class MusicPlayer : MusicPlay {
 
 			this.clip = clip
 			states!!.current.value = name
-			withContext(Dispatchers.IO) {
-				process.waitFor()
-			}
 		} catch (ex: Exception) {
 			ex.printStackTrace()
+		}
+	}
+
+	fun convert(path: String, target: String, stream: ByteArrayOutputStream? = null) {
+		var process: Process? = null
+
+		try {
+			val commands = listOf(
+				"ffmpeg",
+				"-i", path,
+				"-f", "wav",
+				"-ar", "44100",
+				"-ac", "2",
+				"-n",
+				target
+			)
+
+			val processBuilder = ProcessBuilder(commands)
+			processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT)
+			process = processBuilder.start()
+
+			process.waitFor()
+			if (stream != null) {
+				process?.inputStream.use {
+					it?.copyTo(stream)
+				}
+			}
+		} catch (ex: Exception) {
+			throw ex
 		} finally {
 			process?.destroy()
 		}

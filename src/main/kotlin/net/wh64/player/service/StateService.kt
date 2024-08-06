@@ -25,7 +25,7 @@ class StateService {
 			}
 
 			file.createNewFile()
-			Files.write(file.toPath(), "{\"volume\":0.5,\"mode\": \"SINGLE\"}"
+			Files.write(file.toPath(), "{\"volume\":0.5,\"mode\":\"SINGLE\"}"
 				.toByteArray(Charsets.UTF_8))
 
 			Thread.sleep(1000)
